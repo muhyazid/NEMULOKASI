@@ -1,0 +1,289 @@
+/* =============================================
+   Fuzzy Lokasi - Main Style Sheet
+   ============================================= */
+
+/* Warna tema dan variabel utama */
+:root {
+    --primary-color: #3282b8;
+    --dark-sidebar: #1e1e2d;
+    --light-text: #ffffff;
+    --menu-text: #a2a3b7;
+    --menu-active: #ffffff;
+    --menu-hover-bg: rgba(255, 255, 255, 0.1);
+    --menu-border-active: #3282b8;
+}
+
+/* =============================================
+   HEADER & NAVBAR
+   ============================================= */
+.main-header {
+    background-color: var(--primary-color) !important;
+    color: var(--light-text) !important;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    border-bottom: none;
+}
+
+.main-header .nav-link {
+    color: var(--light-text) !important;
+}
+
+.brand-link {
+    background-color: var(--primary-color) !important;
+    color: var(--light-text) !important;
+    border-bottom: none !important;
+    text-align: left;
+    font-weight: bold;
+    font-size: 1.25rem;
+    height: 57px;
+    display: flex;
+    align-items: center;
+}
+
+/* =============================================
+   SIDEBAR
+   ============================================= */
+.main-sidebar {
+    background-color: var(--dark-sidebar) !important;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.sidebar {
+    padding-top: 0;
+}
+
+/* Menu Navigasi Title */
+.menu-navigasi-title {
+    color: rgba(255, 255, 255, 0.5);
+    padding: 10px 15px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 15px;
+}
+
+/* Menu Item */
+.nav-sidebar .nav-link {
+    color: var(--menu-text) !important;
+    border-left: 3px solid transparent;
+    margin-bottom: 2px;
+}
+
+.nav-sidebar .nav-link.active,
+.nav-sidebar .nav-link:hover {
+    color: var(--menu-active) !important;
+    background-color: var(--menu-hover-bg) !important;
+    border-left: 3px solid var(--menu-border-active);
+}
+
+/* User panel */
+.user-panel {
+    border-bottom: 1px solid #2d2d43;
+    margin-top: 10px;
+    padding-bottom: 15px;
+}
+
+.user-panel .image img {
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Menu active indicator */
+.nav-treeview > .nav-item > .nav-link.active i {
+    color: var(--primary-color);
+}
+
+/* Icon style */
+.nav-icon {
+    margin-right: 10px;
+}
+
+/* Icon panah untuk dropdown */
+.nav-sidebar .nav-link .right {
+    transition: transform 0.3s ease;
+}
+
+.nav-sidebar .menu-open > .nav-link .right {
+    transform: rotate(-180deg);
+}
+
+/* Submenu */
+.nav-treeview {
+    padding-left: 0;
+}
+
+.nav-treeview .nav-link {
+    padding-left: 30px;
+    color: var(--menu-text) !important;
+    position: relative;
+}
+
+/* Submenu aktif */
+.nav-treeview .nav-item .nav-link.active {
+    background-color: var(--menu-hover-bg) !important;
+    color: var(--menu-active) !important;
+}
+
+/* PENTING: Ini untuk menonaktifkan auto-expand */
+.sidebar-no-expand.sidebar-collapse .main-sidebar:hover {
+    width: 4.6rem !important; /* tetap dalam keadaan minimized */
+}
+
+.sidebar-no-expand.sidebar-collapse
+    .main-sidebar:hover
+    .nav-sidebar
+    .nav-link
+    p,
+.sidebar-no-expand.sidebar-collapse .main-sidebar:hover .brand-text,
+.sidebar-no-expand.sidebar-collapse .main-sidebar:hover .user-panel .info {
+    display: none !important; /* HIDE text elements saat hover */
+}
+
+/* =============================================
+   CONTENT AREA
+   ============================================= */
+.content-wrapper {
+    background-color: #f5f5f5;
+}
+
+.content-header {
+    background-color: white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+/* Breadcrumb style */
+.breadcrumb {
+    background: transparent;
+    padding: 0;
+    margin-bottom: 0;
+}
+
+.breadcrumb-item a {
+    color: var(--primary-color);
+}
+
+/* =============================================
+   CARD & TABLE STYLES
+   ============================================= */
+.card {
+    border-radius: 5px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+    margin-bottom: 20px;
+}
+
+.card-header {
+    background-color: white;
+    border-bottom: 1px solid #eee;
+    padding: 15px 20px;
+    font-weight: 600;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+/* Table Style */
+.table {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.table thead th {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    font-weight: 600;
+    color: #495057;
+}
+
+.table tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* =============================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================= */
+@media (max-width: 768px) {
+    .content-header {
+        padding: 10px;
+    }
+
+    .card-header,
+    .card-body {
+        padding: 15px;
+    }
+}
+
+/* =============================================
+   SIDEBAR COLLAPSED STATE
+   ============================================= */
+.sidebar-collapse .main-sidebar {
+    width: 4.6rem;
+}
+
+.sidebar-collapse .main-sidebar .brand-text,
+.sidebar-collapse .main-sidebar .user-panel .info {
+    display: none !important;
+}
+
+/* Fix untuk icon posisi di sidebar collapsed */
+.sidebar-mini.sidebar-collapse .main-sidebar .nav-sidebar .nav-link {
+    padding: 12px 16px;
+    width: 4.6rem;
+    text-align: center;
+}
+
+.sidebar-mini.sidebar-collapse .main-sidebar .nav-sidebar .nav-icon {
+    margin-right: 0;
+    margin-left: 0;
+    width: 20px;
+}
+
+.sidebar-mini.sidebar-collapse .main-sidebar .nav-sidebar .nav-link .right {
+    display: none !important;
+}
+
+/* PENTING: Ini untuk menonaktifkan auto-expand & memastikan dropdown tertutup */
+.sidebar-no-expand.sidebar-collapse .main-sidebar:hover {
+    width: 4.6rem !important; /* tetap dalam keadaan minimized */
+}
+
+.sidebar-no-expand.sidebar-collapse
+    .main-sidebar:hover
+    .nav-sidebar
+    .nav-link
+    p,
+.sidebar-no-expand.sidebar-collapse .main-sidebar:hover .brand-text,
+.sidebar-no-expand.sidebar-collapse .main-sidebar:hover .user-panel .info,
+.sidebar-no-expand.sidebar-collapse
+    .main-sidebar:hover
+    .menu-open
+    .nav-treeview {
+    display: none !important; /* Pastikan tidak ada yang muncul saat hover */
+}
+
+.sidebar-collapse .nav-item.menu-open {
+    height: auto !important;
+}
+
+.sidebar-collapse .nav-treeview {
+    display: none !important;
+}
+
+/* Perbaikan tampilan ikon pada sidebar collapsed */
+.sidebar-collapse .nav-icon {
+    font-size: 1.2rem;
+    margin: 0 auto;
+    text-align: center;
+    display: block;
+}
+
+/* Tambahkan indikator aktif vertikal pada sidebar collapsed */
+.sidebar-collapse .nav-sidebar .nav-link.active::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background-color: var(--primary-color);
+}
