@@ -64,7 +64,7 @@
 
             <!-- Sidebar -->
             <div class="sidebar">
-                <!-- User Panel -->
+            <!-- User Panel -->
                 <div class="user-panel mt-3 pb-3 mb-3 d-flex">
                     <div class="image">
                         <img src="{{ asset('LTE/dist/img/user2-160x160.jpg') }}" class="img-circle elevation-2"
@@ -74,12 +74,10 @@
                         <a href="#" class="d-block">Administrator</a>
                     </div>
                 </div>
-
                 <!-- Menu Navigasi Title -->
                 <div class="menu-navigasi-title">
                     MENU NAVIGASI
                 </div>
-
                 <!-- Sidebar Menu -->
                 <nav class="mt-2">
                     <ul class="nav nav-pills nav-sidebar flex-column nav-legacy" data-widget="treeview" role="menu"
@@ -153,17 +151,24 @@
 
                         <!-- Parameter Fuzzy -->
                         <li class="nav-item">
-                            <a href="{{ route('parameter-fuzzy.form') }}"
-                                class="nav-link {{ request()->routeIs('parameter-fuzzy.form') ? 'active' : '' }}">
+                            <a href="{{ route('parameter-fuzzy.index') }}"
+                                class="nav-link {{ request()->routeIs('parameter-fuzzy.*') ? 'active' : '' }}">
                                 <i class="nav-icon fas fa-sliders-h"></i>
-                                <p>
-                                    Parameter Fuzzy
-                                </p>
+                                <p>Parameter Fuzzy</p>
+                            </a>
+                        </li>
+
+                        <!-- Aturan Fuzzy -->
+                        <li class="nav-item">
+                            <a href="{{ route('aturan-fuzzy.index') }}"
+                                class="nav-link {{ request()->routeIs('aturan-fuzzy.*') ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-sitemap"></i>
+                                <p>Aturan Fuzzy</p>
                             </a>
                         </li>
                     </ul>
                 </nav>
-                <!-- /.sidebar-menu -->
+            <!-- /.sidebar-menu -->
             </div>
             <!-- /.sidebar -->
         </aside>

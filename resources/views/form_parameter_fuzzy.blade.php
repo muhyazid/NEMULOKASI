@@ -10,197 +10,174 @@
 @endsection
 
 @section('content')
-    <div class="card">
-        <div class="card-header">
-            <h3 class="card-title">Form Input Parameter Fuzzy</h3>
-        </div>
-        <div class="card-body">
-            @if (session('success'))
-                <div class="alert alert-success">
-                    {{ session('success') }}
+    <div class="row">
+        <!-- Form Input -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Form Input Parameter Fuzzy</h3>
                 </div>
-            @endif
+                <div class="card-body">
+                    @if (session('success'))
+                        <div class="alert alert-success">
+                            {{ session('success') }}
+                        </div>
+                    @endif
 
-            <form action="{{ route('parameter-fuzzy.simpan') }}" method="POST">
-                @csrf
-                <div class="form-group">
-                    <label for="nama_parameter">Nama Parameter:</label>
-                    <select name="nama_parameter" id="nama_parameter" class="form-control" required>
-                        <option value="aksesibilitas">Aksesibilitas</option>
-                        <option value="visibilitas">Visibilitas</option>
-                        <option value="daya_beli">Daya Beli</option>
-                        <option value="persaingan">Persaingan</option>
-                        <option value="infrastruktur">Infrastruktur</option>
-                        <option value="lingkungan_sekitar">Lingkungan Sekitar</option>
-                        <option value="parkir">Parkir</option>
-                    </select>
+                    @if ($errors->any())
+                        <div class="alert alert-danger">
+                            <ul class="mb-0">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
+                    <form action="{{ route('parameter-fuzzy.simpan') }}" method="POST" id="parameterForm">
+                        @csrf
+                        
+                        <!-- Nama Parameter -->
+                        <div class="form-group">
+                            <label for="nama_parameter">Nama Parameter:<span class="text-danger">*</span></label>
+                            <select name="nama_parameter" id="nama_parameter" class="form-control" required>
+                                <option value="">-- Pilih Parameter --</option>
+                                @if(!empty($availableParameters))
+                                    @foreach($availableParameters as $param)
+                                        <option value="{{ $param }}" {{ old('nama_parameter') == $param ? 'selected' : '' }}>
+                                            {{ ucwords(str_replace('_', ' ', $param)) }}
+                                        </option>
+                                    @endforeach
+                                @endif
+                            </select>
+                        </div>
+
+                       
+
+                        <!-- Nilai Linguistik -->
+                        <div class="form-group">
+                            <label for="nilai_fuzzy">Nilai Linguistik:<span class="text-danger">*</span></label>
+                            <select name="nilai_fuzzy" id="nilai_fuzzy" class="form-control" required>
+                                <option value="">-- Pilih Nilai Linguistik --</option>
+                            </select>
+                            <small class="form-text text-muted">Nilai linguistik seperti "rendah", "sedang", "tinggi"</small>
+                        </div>
+
+                        <!-- Input Custom Nilai Linguistik -->
+                        <div class="form-group">
+                            <label for="custom_nilai_fuzzy">Atau Masukkan Nilai Linguistik Baru:</label>
+                            <input type="text" id="custom_nilai_fuzzy" class="form-control" 
+                                   placeholder="Contoh: sangat rendah, cukup baik, dll">
+                            <small class="form-text text-muted">Kosongkan jika menggunakan pilihan di atas</small>
+                        </div>
+
+                        <!-- Nilai Crisp -->
+                        <div class="form-group">
+                            <label for="nilai_crisp">Nilai Crisp:<span class="text-danger">*</span></label>
+                            <input type="number" name="nilai_crisp" id="nilai_crisp" class="form-control" 
+                                   min="0" max="10" step="0.1" required value="{{ old('nilai_crisp') }}">
+                            <small class="form-text text-muted">
+                                Nilai numerik 0-10. 
+                                Batas fuzzy saat ini: Rendah (0-2), Sedang (2-5), Tinggi (5-8)
+                            </small>
+                        </div>
+
+                        <!-- Preview Kategori -->
+                        <div class="form-group">
+                            <label>Preview Kategori:</label>
+                            <div id="kategoriPreview" class="alert alert-secondary">
+                                Masukkan nilai crisp untuk melihat kategori fuzzy
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa fa-save"></i> Simpan Parameter Fuzzy
+                        </button>
+                    </form>
                 </div>
-
-                <div class="form-group">
-                    <label for="nilai_fuzzy">Nilai Linguistik:</label>
-                    <select name="nilai_fuzzy" id="nilai_fuzzy" class="form-control" required>
-                        <!-- Options will be updated by JavaScript based on selected parameter -->
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="nilai_crisp">Nilai Crisp:</label>
-                    <input type="number" name="nilai_crisp" id="nilai_crisp" class="form-control" required>
-                    <small class="form-text text-muted">Nilai crisp adalah nilai numerik yang mewakili nilai linguistik
-                        (biasanya
-                        skala 0-10)</small>
-                </div>
-
-                <button type="submit" class="btn btn-primary">Simpan Parameter Fuzzy</button>
-            </form>
-
-            <script>
-                // Mapping nilai linguistik untuk setiap parameter
-                const parameterOptions = {
-                    'aksesibilitas': [{
-                            text: 'Sangat Mudah',
-                            value: 8
-                        },
-                        {
-                            text: 'Sedang',
-                            value: 5
-                        },
-                        {
-                            text: 'Tidak Mudah',
-                            value: 2
-                        }
-                    ],
-                    'visibilitas': [{
-                            text: 'Sangat Terlihat',
-                            value: 8
-                        },
-                        {
-                            text: 'Terlihat Sebagian',
-                            value: 5
-                        },
-                        {
-                            text: 'Tidak Terlihat',
-                            value: 2
-                        }
-                    ],
-                    'daya_beli': [{
-                            text: 'Tinggi',
-                            value: 8
-                        },
-                        {
-                            text: 'Menengah',
-                            value: 5
-                        },
-                        {
-                            text: 'Rendah',
-                            value: 2
-                        }
-                    ],
-                    'persaingan': [{
-                            text: 'Rendah',
-                            value: 8
-                        },
-                        {
-                            text: 'Sedang',
-                            value: 5
-                        },
-                        {
-                            text: 'Tinggi',
-                            value: 2
-                        }
-                    ],
-                    'infrastruktur': [{
-                            text: 'Lengkap',
-                            value: 8
-                        },
-                        {
-                            text: 'Cukup',
-                            value: 5
-                        },
-                        {
-                            text: 'Tidak Lengkap',
-                            value: 2
-                        }
-                    ],
-                    'lingkungan_sekitar': [{
-                            text: 'Sangat Mendukung',
-                            value: 8
-                        },
-                        {
-                            text: 'Netral',
-                            value: 5
-                        },
-                        {
-                            text: 'Tidak Mendukung',
-                            value: 2
-                        }
-                    ],
-                    'parkir': [{
-                            text: 'Luas',
-                            value: 8
-                        },
-                        {
-                            text: 'Sedang',
-                            value: 5
-                        },
-                        {
-                            text: 'Sempit',
-                            value: 2
-                        }
-                    ]
-                };
-
-                // Update nilai linguistik options berdasarkan parameter yang dipilih
-                function updateNilaiFuzzyOptions() {
-                    const parameterSelect = document.getElementById('nama_parameter');
-                    const nilaiFuzzySelect = document.getElementById('nilai_fuzzy');
-                    const nilaiCrispInput = document.getElementById('nilai_crisp');
-
-                    // Hapus semua opsi saat ini
-                    nilaiFuzzySelect.innerHTML = '';
-
-                    // Ambil parameter yang dipilih
-                    const selectedParameter = parameterSelect.value;
-
-                    // Tambahkan opsi baru berdasarkan parameter
-                    if (parameterOptions[selectedParameter]) {
-                        parameterOptions[selectedParameter].forEach(option => {
-                            const optElement = document.createElement('option');
-                            optElement.value = option.text;
-                            optElement.textContent = option.text;
-                            optElement.dataset.value = option.value;
-                            nilaiFuzzySelect.appendChild(optElement);
-                        });
-
-                        // Set nilai crisp default berdasarkan opsi pertama
-                        if (parameterOptions[selectedParameter].length > 0) {
-                            nilaiCrispInput.value = parameterOptions[selectedParameter][0].value;
-                        }
-                    }
-                }
-
-                // Update nilai crisp berdasarkan nilai linguistik yang dipilih
-                function updateNilaiCrisp() {
-                    const nilaiFuzzySelect = document.getElementById('nilai_fuzzy');
-                    const nilaiCrispInput = document.getElementById('nilai_crisp');
-
-                    // Ambil opsi yang dipilih
-                    const selectedOption = nilaiFuzzySelect.options[nilaiFuzzySelect.selectedIndex];
-                    if (selectedOption && selectedOption.dataset.value) {
-                        nilaiCrispInput.value = selectedOption.dataset.value;
-                    }
-                }
-
-                // Event listeners
-                document.getElementById('nama_parameter').addEventListener('change', updateNilaiFuzzyOptions);
-                document.getElementById('nilai_fuzzy').addEventListener('change', updateNilaiCrisp);
-
-                // Inisialisasi saat halaman dimuat
-                window.onload = function() {
-                    updateNilaiFuzzyOptions();
-                    updateNilaiCrisp();
-                };
-            </script>
+            </div>
         </div>
     </div>
+@endsection
+
+@section('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const namaParameterSelect = document.getElementById('nama_parameter');
+            const nilaiFuzzySelect = document.getElementById('nilai_fuzzy');
+            const customParameterGroup = document.getElementById('customParameterGroup');
+            const customParameterInput = document.getElementById('custom_parameter');
+            const customNilaiFuzzyInput = document.getElementById('custom_nilai_fuzzy');
+            const nilaiCrispInput = document.getElementById('nilai_crisp');
+            const kategoriPreview = document.getElementById('kategoriPreview');
+            const form = document.getElementById('parameterForm');
+
+            // Data parameter dari server
+            const parameterData = @json($availableParameters ?? []);
+            // Handle custom parameter input
+            customParameterInput.addEventListener('input', function() {
+                loadNilaiLinguistik('');
+            });
+
+            // Handle custom nilai fuzzy input
+            customNilaiFuzzyInput.addEventListener('input', function() {
+                if (this.value.trim()) {
+                    nilaiFuzzySelect.disabled = true;
+                } else {
+                    nilaiFuzzySelect.disabled = false;
+                }
+            });
+
+            // Handle nilai crisp change for preview
+            nilaiCrispInput.addEventListener('input', function() {
+                if (this.value) {
+                    updateKategoriPreview(parseFloat(this.value));
+                }
+            });
+                // Handle custom nilai fuzzy
+            if (customNilaiFuzzyInput.value.trim()) {
+                    nilaiFuzzySelect.value = customNilaiFuzzyInput.value.trim().toLowerCase();
+                }
+
+                // Validate required fields
+                if (!nilaiFuzzySelect.value && !customNilaiFuzzyInput.value.trim()) {
+                    e.preventDefault();
+                    alert('Silakan pilih atau masukkan nilai linguistik!');
+                    return;
+                }
+             });
+            // Load nilai linguistik berdasarkan parameter
+            function loadNilaiLinguistik(parameter) {
+                // Clear existing options
+                nilaiFuzzySelect.innerHTML = '<option value="">-- Pilih Nilai Linguistik --</option>';
+
+                if (!parameter) {
+                    // Add common linguistic values
+                    const commonValues = [
+                        'sangat rendah', 'rendah', 'sedang', 'tinggi', 'sangat tinggi',
+                        'buruk', 'cukup', 'baik', 'sangat baik',
+                        'tidak ada', 'sedikit', 'banyak',
+                        'sempit', 'luas', 'sangat luas'
+                    ];
+
+                    commonValues.forEach(value => {
+                        const option = document.createElement('option');
+                        option.value = value;
+                        option.textContent = value.charAt(0).toUpperCase() + value.slice(1);
+                        nilaiFuzzySelect.appendChild(option);
+                    });
+                    return;
+                }
+            }
+
+            // Update nilai crisp berdasarkan pilihan nilai fuzzy
+            nilaiFuzzySelect.addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                if (selectedOption.dataset.crisp) {
+                    nilaiCrispInput.value = selectedOption.dataset.crisp;
+                    updateKategoriPreview(parseFloat(selectedOption.dataset.crisp));
+                }
+            });
+        });
+    </script>
 @endsection
