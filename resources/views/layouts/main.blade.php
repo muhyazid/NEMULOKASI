@@ -37,9 +37,7 @@
                 <li class="nav-item d-none d-sm-inline-block">
                     <a href="{{ route('lokasi.form') }}" class="nav-link">Form Analisis</a>
                 </li>
-                <li class="nav-item d-none d-sm-inline-block">
-                    <a href="{{ route('parameter-fuzzy.form') }}" class="nav-link">Parameter Fuzzy</a>
-                </li>
+                
             </ul>
 
             <!-- Right navbar links -->
@@ -54,17 +52,13 @@
         <!-- /.navbar -->
 
         <!-- Main Sidebar Container -->
-        <aside class="main-sidebar elevation-4">
-            <!-- Brand Logo -->
-            <a href="{{ route('lokasi.form') }}" class="brand-link">
-                <img src="{{ asset('LTE/dist/img/AdminLTELogo.png') }}" alt="Sistem Fuzzy Logo"
-                    class="brand-image img-circle elevation-0" style="opacity: .8">
-                <span class="brand-text">Fuzzy Lokasi</span>
+        <aside class="main-sidebar sidebar-dark-primary elevation-4">
+            <a href="{{ route('dashboard') }}" class="brand-link"> <img src="{{ asset('LTE/dist/img/AdminLTELogo.png') }}" alt="Sistem Fuzzy Logo"
+                    class="brand-image img-circle elevation-3" style="opacity: .8">
+                <span class="brand-text font-weight-light">Fuzzy Lokasi Bisnis</span>
             </a>
 
-            <!-- Sidebar -->
             <div class="sidebar">
-            <!-- User Panel -->
                 <div class="user-panel mt-3 pb-3 mb-3 d-flex">
                     <div class="image">
                         <img src="{{ asset('LTE/dist/img/user2-160x160.jpg') }}" class="img-circle elevation-2"
@@ -74,103 +68,99 @@
                         <a href="#" class="d-block">Administrator</a>
                     </div>
                 </div>
-                <!-- Menu Navigasi Title -->
-                <div class="menu-navigasi-title">
-                    MENU NAVIGASI
-                </div>
-                <!-- Sidebar Menu -->
+
                 <nav class="mt-2">
                     <ul class="nav nav-pills nav-sidebar flex-column nav-legacy" data-widget="treeview" role="menu"
                         data-accordion="false">
 
-                        <!-- Dashboard -->
+                        <li class="nav-header">MENU UTAMA</li>
+
                         <li class="nav-item">
-                            <a href="{{ route('dashboard') }}"
-                                class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                            <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
                                 <i class="nav-icon fas fa-tachometer-alt"></i>
                                 <p>Dashboard</p>
                             </a>
                         </li>
+                            {{-- MENU ANALISIS LOKASI --}}
+                            <li class="nav-item {{ request()->routeIs('lokasi.*') ? 'menu-open' : '' }}">
+                                {{-- Link parent # agar hanya berfungsi sebagai toggle dropdown --}}
+                                <a href="#" class="nav-link {{ request()->routeIs('lokasi.*') ? 'active' : '' }}">
+                                    <i class="nav-icon fas fa-map-marker-alt"></i> {{-- Icon parent tetap --}}
+                                    <p>
+                                        Analisis Lokasi
+                                        <i class="right fas fa-angle-left"></i>
+                                    </p>
+                                </a>
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="{{ route('lokasi.form') }}"
+                                           class="nav-link {{ request()->routeIs('lokasi.form') ? 'active' : '' }}">
+                                            <i class="far fa-circle nav-icon"></i> {{-- Icon diubah --}}
+                                            <p>Input / Analisis Baru</p>
+                                        </a>
+                                    </li>
+                                    
+                                    {{-- Sub-menu hasil akan muncul jika ada ID di route --}}
+                                    @php
+                                        $lokasiIdSaatIni = request()->route('id');
+                                    @endphp
 
-                        <!-- Proses Perhitungan -->
-                        <li
-                            class="nav-item {{ request()->is('lokasi/*') && (request()->has('id') || request()->routeIs('lokasi.*')) ? 'menu-open' : '' }}">
-                            <a href="#"
-                                class="nav-link {{ request()->is('lokasi/*') && (request()->has('id') || request()->routeIs('lokasi.*')) ? 'active' : '' }}">
-                                <i class="nav-icon fas fa-calculator"></i>
-                                <p>
-                                    Proses Perhitungan
-                                    <i class="right fas fa-angle-down"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="{{ route('lokasi.form') }}"
-                                        class="nav-link {{ request()->routeIs('lokasi.form') && request()->has('id') ? 'active' : '' }}">
-                                        <i
-                                            class="{{ request()->routeIs('lokasi.form') && request()->has('id') ? 'fas fa-circle' : 'far fa-circle' }} nav-icon"></i>
-                                        <p>Input Data Lokasi</p>
-                                    </a>
-                                </li>
-                                @if (isset($lokasi) && $lokasi->id)
-                                    <li class="nav-item">
-                                        <a href="{{ route('lokasi.hasil', $lokasi->id) }}"
-                                            class="nav-link {{ request()->routeIs('lokasi.hasil') ? 'active' : '' }}">
-                                            <i
-                                                class="{{ request()->routeIs('lokasi.hasil') ? 'fas fa-circle' : 'far fa-circle' }} nav-icon"></i>
-                                            <p>Hasil Analisis</p>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="{{ route('lokasi.fuzzifikasi', $lokasi->id) }}"
-                                            class="nav-link {{ request()->routeIs('lokasi.fuzzifikasi') ? 'active' : '' }}">
-                                            <i
-                                                class="{{ request()->routeIs('lokasi.fuzzifikasi') ? 'fas fa-circle' : 'far fa-circle' }} nav-icon"></i>
-                                            <p>Fuzzifikasi</p>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="{{ route('lokasi.inferensi', $lokasi->id) }}"
-                                            class="nav-link {{ request()->routeIs('lokasi.inferensi') ? 'active' : '' }}">
-                                            <i
-                                                class="{{ request()->routeIs('lokasi.inferensi') ? 'fas fa-circle' : 'far fa-circle' }} nav-icon"></i>
-                                            <p>Inferensi</p>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="{{ route('lokasi.nilai-z', $lokasi->id) }}"
-                                            class="nav-link {{ request()->routeIs('lokasi.nilai-z') ? 'active' : '' }}">
-                                            <i
-                                                class="{{ request()->routeIs('lokasi.nilai-z') ? 'fas fa-circle' : 'far fa-circle' }} nav-icon"></i>
-                                            <p>Perhitungan Nilai Z</p>
-                                        </a>
-                                    </li>
-                                @endif
-                            </ul>
-                        </li>
+                                    @if($lokasiIdSaatIni && (request()->routeIs('lokasi.hasil') || request()->routeIs('lokasi.fuzzifikasi') || request()->routeIs('lokasi.inferensi') || request()->routeIs('lokasi.nilai-z')))
+                                        {{-- Tambahkan header kecil jika ada hasil --}}
+                                        <li class="nav-header" style="padding-left: 25px; font-size: 0.8em;">DETAIL (ID: {{ $lokasiIdSaatIni }})</li>
 
-                        <!-- Parameter Fuzzy -->
+                                        <li class="nav-item">
+                                            <a href="{{ route('lokasi.hasil', $lokasiIdSaatIni) }}"
+                                               class="nav-link {{ request()->routeIs('lokasi.hasil') ? 'active' : '' }}">
+                                                <i class="far fa-circle nav-icon"></i> {{-- Icon diubah --}}
+                                                <p>Hasil</p>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="{{ route('lokasi.fuzzifikasi', $lokasiIdSaatIni) }}"
+                                               class="nav-link {{ request()->routeIs('lokasi.fuzzifikasi') ? 'active' : '' }}">
+                                                <i class="far fa-circle nav-icon"></i> {{-- Icon diubah --}}
+                                                <p>Fuzzifikasi</p>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="{{ route('lokasi.inferensi', $lokasiIdSaatIni) }}"
+                                               class="nav-link {{ request()->routeIs('lokasi.inferensi') ? 'active' : '' }}">
+                                                <i class="far fa-circle nav-icon"></i> {{-- Icon diubah --}}
+                                                <p>Inferensi</p>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="{{ route('lokasi.nilai-z', $lokasiIdSaatIni) }}"
+                                               class="nav-link {{ request()->routeIs('lokasi.nilai-z') ? 'active' : '' }}">
+                                                <i class="far fa-circle nav-icon"></i> {{-- Icon diubah --}}
+                                                <p>Defuzzifikasi</p>
+                                            </a>
+                                        </li>
+                                    @endif
+                                </ul>
+                            </li>
+
+                        <li class="nav-header">PENGATURAN FUZZY</li>
+
                         <li class="nav-item">
-                            <a href="{{ route('parameter-fuzzy.index') }}"
-                                class="nav-link {{ request()->routeIs('parameter-fuzzy.*') ? 'active' : '' }}">
+                            <a href="{{ route('parameters.index') }}"
+                            class="nav-link {{ request()->routeIs('parameters.*') ? 'active' : '' }}">
                                 <i class="nav-icon fas fa-sliders-h"></i>
-                                <p>Parameter Fuzzy</p>
+                                <p>Kelola Parameter</p>
                             </a>
                         </li>
 
-                        <!-- Aturan Fuzzy -->
                         <li class="nav-item">
                             <a href="{{ route('aturan-fuzzy.index') }}"
-                                class="nav-link {{ request()->routeIs('aturan-fuzzy.*') ? 'active' : '' }}">
-                                <i class="nav-icon fas fa-sitemap"></i>
-                                <p>Aturan Fuzzy</p>
+                            class="nav-link {{ request()->routeIs('aturan-fuzzy.*') ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-project-diagram"></i>
+                                <p>Kelola Aturan Fuzzy</p>
                             </a>
                         </li>
                     </ul>
                 </nav>
-            <!-- /.sidebar-menu -->
             </div>
-            <!-- /.sidebar -->
         </aside>
 
         <!-- Content Wrapper -->

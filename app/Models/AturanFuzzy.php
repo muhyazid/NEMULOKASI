@@ -8,24 +8,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class AturanFuzzy extends Model
 {
      use HasFactory;
-    
     protected $table = 'aturan_fuzzy';
-    
     protected $fillable = [
-        'nama_aturan',
         'kondisi',
-        'hasil',
-        'aktif'
+        'hasil'
     ];
-    
     protected $casts = [
-        'kondisi' => 'array',
-        'aktif' => 'boolean'
+        'kondisi' => 'array'
     ];
-    
-    // Scope untuk mengambil aturan yang aktif
-    public function scopeAktif($query)
-    {
-        return $query->where('aktif', true);
-    }
 }

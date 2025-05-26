@@ -9,19 +9,20 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up()
+    public function up(): void
     {
-        Schema::create('parameter_fuzzy', function (Blueprint $table) {
+        Schema::create('parameters', function (Blueprint $table) {
             $table->id();
-            $table->string('nama_parameter');
-            $table->string('nilai_fuzzy');
-            $table->float('derajat_keanggotaan');
+             $table->string('nama_parameter')->unique();
             $table->timestamps();
         });
     }
 
-    public function down()
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
     {
-        Schema::dropIfExists('parameter_fuzzy');
+        Schema::dropIfExists('parameters');
     }
 };
