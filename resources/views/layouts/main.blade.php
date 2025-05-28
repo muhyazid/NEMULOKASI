@@ -158,6 +158,15 @@
                                 <p>Kelola Aturan Fuzzy</p>
                             </a>
                         </li>
+                        
+                        <li class="nav-header">DATA MASTER</li>
+                        <li class="nav-item">
+                            <a href="{{ route('tempat-bisnis.index') }}"
+                            class="nav-link {{ request()->routeIs('tempat-bisnis.*') ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-store"></i>
+                                <p>Data Tempat Bisnis</p>
+                            </a>
+                        </li>
                     </ul>
                 </nav>
             </div>

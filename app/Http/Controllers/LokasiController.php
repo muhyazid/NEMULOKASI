@@ -5,9 +5,10 @@ use App\Models\Lokasi;
 use App\Models\Parameter;
 use App\Models\HimpunanFuzzy;
 use App\Models\AturanFuzzy;
+use App\Models\TempatBisnis; 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Validator; // Tambahkan ini
+use Illuminate\Support\Facades\Validator;
 
 class LokasiController extends Controller
 {
@@ -17,7 +18,30 @@ class LokasiController extends Controller
     public function tampilkanForm()
     {
         $parameterOptions = $this->getParameterOptions();
-        return view('form_lokasi', compact('parameterOptions'));
+        // Ambil data tempat bisnis untuk dropdown
+        $tempatBisnisOptions = TempatBisnis::orderBy('nama_tempat')->get(); 
+        return view('form_lokasi', compact('parameterOptions', 'tempatBisnisOptions'));
+    }
+
+    /**
+     * Mengambil detail tempat bisnis berdasarkan ID untuk keperluan AJAX.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getTempatBisnisDetail($id)
+    {
+        $tempat = TempatBisnis::find($id);
+
+        if ($tempat) {
+            return response()->json([
+                'id' => $tempat->id,
+                'nama_tempat' => $tempat->nama_tempat,
+                'latitude' => $tempat->latitude,
+                'longitude' => $tempat->longitude,
+            ]);
+        }
+        return response()->json(['error' => 'Tempat bisnis tidak ditemukan'], 404);
     }
 
     // Method utama untuk menghitung skor lokasi
@@ -26,51 +50,78 @@ class LokasiController extends Controller
         $parameterNames = $this->getParameterNames();
         $rules = [];
         foreach($parameterNames as $pName) {
-            $rules[$pName] = 'required|string';
+            $rules[$pName] = 'required|string'; // Aturan untuk parameter fuzzy
         }
-        $rules['nama'] = 'required|string|max:255';
-        $rules['alamat'] = 'nullable|string';
+        // Validasi untuk input baru
+        $rules['tempat_bisnis_id'] = 'required|exists:tempat_bisnis,id';
+        // 'nama' akan dikirim via hidden input, diisi oleh JS saat tempat_bisnis_id dipilih
+        $rules['nama'] = 'required|string|max:255'; 
 
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
             return redirect()->route('lokasi.form')
-                        ->withErrors($validator)
-                        ->withInput();
+                             ->withErrors($validator)
+                             ->withInput();
         }
 
-        $dataLokasi = $validator->validated();
+        $validatedData = $validator->validated();
+        
+        $dataLokasiUntukProsesDanSimpan = [];
+        // Gunakan nama yang dikirim dari hidden input
+        $dataLokasiUntukProsesDanSimpan['nama'] = $validatedData['nama']; 
+
+        // Ambil data parameter linguistik dari request
+        foreach ($parameterNames as $param) {
+            if(isset($validatedData[$param])) {
+                $dataLokasiUntukProsesDanSimpan[$param] = $validatedData[$param];
+            }
+        }
 
         // Langkah 1: Konversi nilai linguistik ke nilai crisp DARI DATABASE
         $crispValues = [];
         foreach ($parameterNames as $param) {
-            $crispValues[$param] = $this->getNilaiCrispFromDB($dataLokasi[$param], $param);
+            if (isset($dataLokasiUntukProsesDanSimpan[$param])) {
+                 $crispValues[$param] = $this->getNilaiCrispFromDB($dataLokasiUntukProsesDanSimpan[$param], $param);
+            } else {
+                 Log::warning("Parameter $param tidak ada di data untuk fuzzifikasi.");
+                 $crispValues[$param] = 0; 
+            }
         }
 
-        // Langkah 2: Fuzzifikasi (Menghitung derajat keanggotaan)
+        // Langkah 2: Fuzzifikasi
         $derajatFuzzy = [];
         foreach ($crispValues as $parameter => $nilaiCrisp) {
             $derajatFuzzy[$parameter] = $this->fuzzifikasi($nilaiCrisp, $parameter);
         }
 
-        // Langkah 3: Inferensi dengan aturan fuzzy DARI DATABASE
+        // Langkah 3: Inferensi
         $hasilInferensi = $this->inferensiFromDB($derajatFuzzy);
 
-        // Langkah 4: Defuzzifikasi (Metode Tsukamoto - Weighted Average)
+        // Langkah 4: Defuzzifikasi
         $skor = $this->hitungWeightedAverage($hasilInferensi);
-
-        // Tentukan kelayakan berdasarkan threshold
         $kelayakan = $skor >= $this->threshold ? 'Layak' : 'Kurang Layak';
 
-        // Simpan lokasi ke database
-        $lokasiDataToSave = $dataLokasi;
-        $lokasiDataToSave['skor_lokasi'] = $skor;
-        $lokasiDataToSave['kelayakan'] = $kelayakan;
+        // Persiapan data untuk disimpan ke tabel 'lokasi'
+        $kolomFillableLokasi = (new Lokasi())->getFillable();
+        $dataFinalUntukCreate = [];
 
-        $lokasi = Lokasi::create($lokasiDataToSave);
+        foreach($kolomFillableLokasi as $kolom) {
+            if(array_key_exists($kolom, $dataLokasiUntukProsesDanSimpan)) {
+                $dataFinalUntukCreate[$kolom] = $dataLokasiUntukProsesDanSimpan[$kolom];
+            }
+        }
+        if (in_array('nama', $kolomFillableLokasi) && !isset($dataFinalUntukCreate['nama'])) {
+             $dataFinalUntukCreate['nama'] = $validatedData['nama'];
+        }
+
+        $dataFinalUntukCreate['skor_lokasi'] = $skor;
+        $dataFinalUntukCreate['kelayakan'] = $kelayakan;
+
+        $lokasiHasilAnalisis = Lokasi::create($dataFinalUntukCreate);
 
         // Simpan hasil perhitungan ke dalam session
-        $this->simpanHasilKeSession($lokasi->id, $skor, $kelayakan, $hasilInferensi, $derajatFuzzy, $crispValues);
+        $this->simpanHasilKeSession($lokasiHasilAnalisis->id, $skor, $kelayakan, $hasilInferensi, $derajatFuzzy, $crispValues);
 
         // Extract variables untuk view
         $viewData = $this->extractVariablesForView($derajatFuzzy, $crispValues);
@@ -78,12 +129,16 @@ class LokasiController extends Controller
         return view('hasil_lokasi', array_merge([
             'skor' => $skor,
             'kelayakan' => $kelayakan,
-            'lokasi' => $lokasi,
+            'lokasi' => $lokasiHasilAnalisis,
             'hasilInferensi' => $hasilInferensi,
             'threshold' => $this->threshold,
         ], $viewData));
     }
 
+    // --- Metode Lainnya (getParameterNames, getParameterOptions, getNilaiCrispFromDB, hitungSegitiga, fuzzifikasi, inferensiFromDB, hitungNilaiZ, hitungWeightedAverage, simpanHasilKeSession, extractVariablesForView, extractVariablesFromSession, tampilkanHasil, tampilkanFuzzifikasi, tampilkanInferensi, tampilkanNilaiZ, hitungUlangDanTampilkan) ---
+    // Pastikan semua metode lainnya ada di sini seperti yang Anda berikan sebelumnya.
+    // ... (kode metode lainnya diletakkan di sini) ...
+    
     // Mengambil nama-nama parameter
     private function getParameterNames()
     {
@@ -98,13 +153,13 @@ class LokasiController extends Controller
 
         foreach ($parameters as $parameter) {
             $options[$parameter->nama_parameter] = $parameter->himpunanFuzzies
-                ->pluck('nilai_linguistik_view', 'nilai_linguistik_view') // Pakai nilai_linguistik_view untuk key dan value
+                ->pluck('nilai_linguistik_view', 'nilai_linguistik_view')
                 ->toArray();
         }
         return $options;
     }
 
-    // Mengambil nilai crisp input (2.5, 4.5, 7.5, etc.) dari database
+    // Mengambil nilai crisp input dari database
     private function getNilaiCrispFromDB($nilaiLinguistikView, $parameterName)
     {
         $parameter = Parameter::where('nama_parameter', $parameterName)->first();
@@ -143,7 +198,7 @@ class LokasiController extends Controller
         }
     }
 
-    // Method fuzzifikasi BARU: Menghitung derajat untuk SEMUA himpunan
+    // Method fuzzifikasi
     private function fuzzifikasi($nilaiCrisp, $parameterName)
     {
         $parameter = Parameter::where('nama_parameter', $parameterName)->first();
@@ -159,28 +214,25 @@ class LokasiController extends Controller
             $nilai = $this->hitungSegitiga($nilaiCrisp, $himpunan->mf_a, $himpunan->mf_b, $himpunan->mf_c);
             $derajatKeanggotaan[$himpunan->nama_himpunan] = round($nilai, 4);
         }
-
-        return $derajatKeanggotaan; // Mengembalikan array [nama_himpunan => derajat]
+        return $derajatKeanggotaan;
     }
 
-    // Method inferensi menggunakan aturan dari database BARU
-   private function inferensiFromDB($derajatFuzzy)
+    // Method inferensi
+    private function inferensiFromDB($derajatFuzzy)
     {
         $hasilInferensi = [ 'aturan' => [], 'total_alpha_z' => 0, 'total_alpha' => 0 ];
-        // $aturanFuzzy = AturanFuzzy::aktif()->get(); // Baris lama
-        $aturanFuzzy = AturanFuzzy::all(); // BARIS BARU: Ambil semua aturan
+        $aturanFuzzy = AturanFuzzy::all();
 
         if ($aturanFuzzy->isEmpty()) {
-            Log::warning("Tidak ada aturan fuzzy yang ditemukan di database."); // Pesan diubah
+            Log::warning("Tidak ada aturan fuzzy yang ditemukan di database.");
             return $hasilInferensi;
         }
 
-        foreach ($aturanFuzzy as $index => $aturan) {
+        foreach ($aturanFuzzy as $aturan) { 
             $alpha = 1.0;
             $kondisiIf = [];
             $semuaKondisiTerpenuhi = true;
 
-            // Jika $aturan->kondisi null atau bukan array, skip aturan ini
             if (empty($aturan->kondisi) || !is_array($aturan->kondisi)) {
                 Log::warning("Aturan ID {$aturan->id} tidak memiliki kondisi yang valid atau kosong.");
                 continue; 
@@ -188,13 +240,12 @@ class LokasiController extends Controller
 
             foreach ($aturan->kondisi as $param => $himpunan) {
                 if (!isset($derajatFuzzy[$param][$himpunan])) {
-                    Log::warning("Parameter '$param' atau himpunan '$himpunan' tidak ditemukan dalam hasil fuzzifikasi untuk aturan ID {$aturan->id}");
+                    Log::warning("Kondisi tidak lengkap untuk aturan ID {$aturan->id}: Parameter '$param' atau himpunan '$himpunan' tidak ada di hasil fuzzifikasi.");
                     $semuaKondisiTerpenuhi = false;
-                    $derajatParameter = 0;
+                    $derajatParameter = 0; 
                 } else {
                     $derajatParameter = $derajatFuzzy[$param][$himpunan];
                 }
-
                 $kondisiIf[] = [ 'parameter' => $param, 'himpunan' => $himpunan, 'derajat' => $derajatParameter ];
                 $alpha = min($alpha, $derajatParameter);
             }
@@ -207,8 +258,8 @@ class LokasiController extends Controller
                 $hasilInferensi['total_alpha'] += $alpha;
 
                 $hasilInferensi['aturan'][] = [
-                    'nomor_aturan' => $aturan->id, // Gunakan ID aturan sebagai nomor
-                    'nama_aturan' => 'R' . $aturan->id, // Tampilkan R + ID jika diperlukan untuk display
+                    'nomor_aturan' => $aturan->id,
+                    'nama_aturan' => 'R' . $aturan->id,
                     'kondisi_if' => $kondisiIf, 
                     'alpha' => round($alpha, 4),
                     'hasil_then' => $aturan->hasil, 
@@ -217,7 +268,7 @@ class LokasiController extends Controller
                 ];
             }
         }
-        if (empty($hasilInferensi['aturan'])) { // Periksa apakah array aturan kosong
+        if (empty($hasilInferensi['aturan'])) {
             Log::warning("Tidak ada aturan fuzzy yang terpicu dalam inferensi setelah evaluasi.");
         }
         return $hasilInferensi;
@@ -226,40 +277,21 @@ class LokasiController extends Controller
     // Menghitung Nilai Z (Tsukamoto)
     private function hitungNilaiZ($alpha, $kategoriHasil)
     {
-        // Batas output (Bisa dari DB/Config)
         $batasOutput = [
             'tidak_layak' => ['min' => 0, 'max' => 60],
             'layak' => ['min' => 60, 'max' => 100],
         ];
-
-        // Definisikan 'layak' dan 'tidak_layak' saja
         $kategoriValid = ['layak', 'tidak_layak'];
         if (!in_array($kategoriHasil, $kategoriValid)) {
             Log::warning("Kategori hasil tidak valid: $kategoriHasil. Menggunakan 'tidak_layak'");
             $kategoriHasil = 'tidak_layak';
         }
-
         $alpha = max(0, min(1, $alpha));
-
-        // Menggunakan fungsi linier sederhana
-        // Jika tidak layak, Z bergerak dari max ke min (turun)
-        // Jika layak, Z bergerak dari min ke max (naik)
         $min = $batasOutput[$kategoriHasil]['min'];
         $max = $batasOutput[$kategoriHasil]['max'];
-
-        if ($kategoriHasil === 'tidak_layak') {
-             // Jika alpha = 1 (sangat tidak layak), maka Z = min
-             // Jika alpha = 0 (mendekati layak), maka Z = max
-             $z = $max - ($max - $min) * $alpha;
-        } else { // 'layak'
-             // Jika alpha = 1 (sangat layak), maka Z = max
-             // Jika alpha = 0 (mendekati tidak layak), maka Z = min
-             $z = $min + ($max - $min) * $alpha;
-        }
-
+        $z = ($kategoriHasil === 'tidak_layak') ? ($max - ($max - $min) * $alpha) : ($min + ($max - $min) * $alpha);
         return max(0, min(100, $z));
     }
-
 
     // Menghitung Weighted Average (Defuzzifikasi)
     private function hitungWeightedAverage($hasilInferensi)
@@ -365,12 +397,17 @@ class LokasiController extends Controller
     // Menghitung ulang jika session hilang
     private function hitungUlangDanTampilkan($lokasi, $tampilan)
     {
-        $dataLokasi = $lokasi->toArray();
-        $parameters = $this->getParameterNames();
+        $dataLokasiLinguistik = [];
+        $parameterNames = $this->getParameterNames();
+        foreach ($parameterNames as $pName) {
+            if (isset($lokasi->$pName)) {
+                $dataLokasiLinguistik[$pName] = $lokasi->$pName;
+            }
+        }
 
         $crispValues = [];
-        foreach ($parameters as $param) {
-            $crispValues[$param] = $this->getNilaiCrispFromDB($dataLokasi[$param], $param);
+        foreach ($dataLokasiLinguistik as $param => $nilaiLinguistik) {
+            $crispValues[$param] = $this->getNilaiCrispFromDB($nilaiLinguistik, $param);
         }
 
         $derajatFuzzy = [];
@@ -383,7 +420,6 @@ class LokasiController extends Controller
         $kelayakan = $lokasi->kelayakan ?? ($skor >= $this->threshold ? 'Layak' : 'Kurang Layak');
 
         $this->simpanHasilKeSession($lokasi->id, $skor, $kelayakan, $hasilInferensi, $derajatFuzzy, $crispValues);
-
         $viewData = $this->extractVariablesForView($derajatFuzzy, $crispValues);
 
         switch ($tampilan) {

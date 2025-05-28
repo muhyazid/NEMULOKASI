@@ -5,20 +5,10 @@ use App\Http\Controllers\LokasiController;
 use App\Http\Controllers\ParameterFuzzyController;
 use App\Http\Controllers\AturanFuzzyController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\TempatBisnisController;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
-*/
 // Rute Dashboard
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard'); // Rute baru
-
 
 // Rute Utama & Perhitungan Fuzzy
 Route::get('/', [LokasiController::class, 'tampilkanForm'])->name('lokasi.form');
@@ -33,6 +23,10 @@ Route::resource('parameters', ParameterFuzzyController::class)->names('parameter
 
 // Rute CRUD Aturan Fuzzy
 Route::resource('aturan-fuzzy', AturanFuzzyController::class)->names('aturan-fuzzy');
+
+Route::resource('tempat-bisnis', TempatBisnisController::class)->parameters(['tempat-bisnis' => 'tempatBisni']);
+
+Route::get('/api/tempat-bisnis/{id}', [LokasiController::class, 'getTempatBisnisDetail'])->name('api.tempat_bisnis.detail');
 
 // Jika Anda menggunakan Auth, tambahkan middleware
 // Route::middleware('auth')->group(function () {

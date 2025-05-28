@@ -45,7 +45,7 @@
                     <div class="row">
                         <div class="col-md-6">
                             <p><strong>Nama Lokasi:</strong> {{ $lokasi->nama }}</p>
-                            <p><strong>Alamat:</strong> {{ $lokasi->alamat ?: '-' }}</p>
+                            {{-- <p><strong>Alamat:</strong> {{ $lokasi->alamat ?: '-' }}</p> --}} {{-- Dihapus --}}
                             <p><strong>Tanggal Analisis:</strong> {{ $lokasi->created_at->format('d F Y H:i') }}</p>
                         </div>
                          <div class="col-md-6">
@@ -62,6 +62,7 @@
                 </div>
             </div>
 
+            {{-- Bagian Detail Langkah Perhitungan tetap sama --}}
             <div class="card mb-4">
                 <div class="card-header bg-info">
                     <h4 class="mb-0 card-title"><i class="fas fa-shoe-prints"></i> Detail Langkah Perhitungan</h4>
