@@ -13,13 +13,7 @@
     {{-- CSS untuk DataTables Bootstrap 4 --}}
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap4.min.css">
-    <style>
-        .table th, .table td { vertical-align: middle !important; font-size: 0.85rem; }
-        .table thead th { text-align: center; background-color: #e9ecef; font-weight: 600;}
-        .badge { font-size: 0.8rem; padding: 0.4em 0.6em; }
-        .dataTables_wrapper .dataTables_filter input,
-        .dataTables_wrapper .dataTables_length select { height: calc(1.5em + .5rem + 2px); padding: .25rem .5rem; font-size: .875rem; }
-    </style>
+    <link rel="stylesheet" href="{{ asset('css/custom-styles.css') }}"> 
 @endsection
 
 @section('content')
@@ -53,26 +47,24 @@
                 <table id="aturanFuzzyTable" class="table table-bordered table-striped table-hover" style="width:100%">
                     <thead>
                         <tr>
-                            <th style="width: 5%;">No. Aturan</th> {{-- Diubah --}}
-                            {{-- Loop untuk header parameter dinamis berdasarkan $parameterDisplayNames --}}
+                            <th style="width: 5%;">No. Aturan</th>
                             @foreach($parameterDisplayNames as $displayParamName)
                                 <th>{{ $displayParamName }}</th>
                             @endforeach
                             <th style="width: 10%;">Hasil (THEN)</th>
-                            <th style="width: 12%;">Aksi</th>
+                            {{-- Tambahkan kelas 'no-sort' jika ingin menargetkan dengan kelas --}}
+                            <th style="width: 12%;" class="text-center no-sort">Aksi</th> 
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($aturans as $aturan) {{-- $index tidak lagi digunakan untuk penomoran --}}
+                        @foreach($aturans as $aturan)
                         <tr>
-                            <td class="text-center">R{{ $loop->iteration }}</td> {{-- MENGGUNAKAN $loop->iteration --}}
-                            
+                            <td class="text-center">R{{ $loop->iteration }}</td>
                             @foreach($parameterDisplayNames as $displayParamName)
                                 @php
                                     $paramKeyForCondition = str_replace(' ', '_', strtolower($displayParamName));
-                                    $namaHimpunanTersimpan = $aturan->kondisi[$paramKeyForCondition] ?? null;
+                                    $namaHimpunanTersimpan = is_array($aturan->kondisi) ? ($aturan->kondisi[$paramKeyForCondition] ?? null) : null;
                                     $tampilanLinguistikDiTabel = '-'; 
-                                    
                                     if ($namaHimpunanTersimpan && isset($linguisticViewMap[$paramKeyForCondition][$namaHimpunanTersimpan])) {
                                         $tampilanLinguistikDiTabel = $linguisticViewMap[$paramKeyForCondition][$namaHimpunanTersimpan];
                                     }
@@ -85,17 +77,16 @@
                                     @endif
                                 </td>
                             @endforeach
-
                             <td class="text-center">
-                                 <span class="badge {{ $aturan->hasil == 'Layak' ? 'badge-success' : 'badge-danger' }}">
-                                     {{ ucwords(str_replace('_', ' ', $aturan->hasil)) }}
-                                 </span>
+                                <span class="badge {{ $aturan->hasil == 'Layak' ? 'badge-success' : 'badge-danger' }}">
+                                    {{ ucwords(str_replace('_', ' ', $aturan->hasil)) }}
+                                </span>
                             </td>
-                            <td class="text-center">
-                                 <a href="{{ route('aturan-fuzzy.edit', $aturan->id) }}" class="btn btn-warning btn-xs" title="Edit">
+                            <td class="text-center action-buttons">
+                                <a href="{{ route('aturan-fuzzy.edit', $aturan->id) }}" class="btn btn-warning btn-xs" title="Edit">
                                     <i class="fas fa-edit"></i> 
                                 </a>
-                                <form action="{{ route('aturan-fuzzy.destroy', $aturan->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus aturan R{{ $loop->iteration }}\'?');"> {{-- Pesan konfirmasi menggunakan $loop->iteration --}}
+                                <form action="{{ route('aturan-fuzzy.destroy', $aturan->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus aturan R{{ $loop->iteration }}\'?');">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-danger btn-xs" title="Hapus">
@@ -111,31 +102,15 @@
         </div>
     </div>
 @endif
-
 @endsection
 
 @section('scripts')
-    {{-- Pastikan jQuery sudah dimuat --}}
-    {{-- <script src="https://code.jquery.com/jquery-3.7.0.js"></script> --}} 
+    {{-- Library DataTables (CDN) --}}
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap4.min.js"></script>
 
-    <script>
-        $(document).ready(function() {
-            $('#aturanFuzzyTable').DataTable({
-                "responsive": true,
-                "lengthChange": true,
-                "autoWidth": false,
-                "language": { /* ... bahasa ... */ },
-                "columnDefs": [
-                    // Kolom No. Aturan (indeks 0) sekarang adalah nomor urut, jadi bisa di-sort.
-                    // Kolom Aksi (indeks terakhir) yang tidak perlu di-sort.
-                    { "orderable": false, "targets": [{{ count($parameterDisplayNames) + 2 }} ] } 
-                    // Indeks kolom Aksi: 0 (No) + count(Parameter) + 1 (Hasil) = count($parameterDisplayNames) + 2
-                ]
-            });
-        });
-    </script>
+    {{-- Link ke file JavaScript kustom Anda --}}
+    <script src="{{ asset('js/custom-datatables.js') }}"></script>
 @endsection

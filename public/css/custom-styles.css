@@ -1,0 +1,144 @@
+/* File: public/css/custom-styles.css */
+
+/* Styling Umum untuk Tabel yang Menggunakan DataTables */
+.table th, .table td {
+    vertical-align: middle !important;
+    font-size: 0.875rem; /* Ukuran font standar untuk sel tabel */
+}
+
+.table thead th {
+    text-align: center;
+    background-color: #e9ecef; /* Warna header tabel */
+    font-weight: 600;
+}
+
+/* Styling Umum untuk Badge */
+.badge {
+    font-size: 0.8rem; /* Ukuran font badge umum */
+    padding: 0.4em 0.6em;
+}
+
+/* Styling untuk Kontrol DataTables */
+.dataTables_wrapper .dataTables_filter input,
+.dataTables_wrapper .dataTables_length select {
+    height: calc(1.5em + .5rem + 2px);
+    padding: .25rem .5rem;
+    font-size: .875rem;
+    border-radius: .2rem; /* Sudut membulat untuk input dan select */
+    border: 1px solid #ced4da; /* Border standar */
+}
+
+.dataTables_wrapper .dataTables_paginate .page-link {
+    font-size: 0.875rem;
+    padding: .375rem .75rem; /* Padding standar pagination */
+}
+
+/* Styling untuk Tombol Aksi di dalam Tabel */
+.action-buttons .btn {
+    margin-right: 3px; /* Jarak antar tombol aksi */
+    padding: .25rem .5rem; /* Padding tombol aksi agar tidak terlalu besar */
+    font-size: 0.75rem; /* Ukuran font tombol aksi */
+}
+
+.action-buttons .btn:last-child {
+    margin-right: 0;
+}
+
+/* Styling Khusus untuk Daftar Himpunan Fuzzy di Tabel Parameter */
+.himpunan-fuzzy-list {
+    padding-left: 0;
+    list-style: none;
+    margin-bottom: 0;
+}
+
+.himpunan-fuzzy-list li {
+    padding: 0.25rem 0;
+    border-bottom: 1px dashed #eee;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.himpunan-fuzzy-list li:last-child {
+    border-bottom: none;
+}
+
+.himpunan-fuzzy-list .badge { /* Badge di dalam daftar himpunan */
+    min-width: 80px;
+    text-align: left;
+    margin-right: 8px;
+    flex-shrink: 0;
+}
+
+.himpunan-fuzzy-list .detail-item {
+    margin-right: 10px;
+    font-size: 0.8rem;
+}
+
+.detail-label {
+    color: #6c757d;
+}
+
+/* Styling untuk Kolom Deskripsi di Tabel Tempat Bisnis */
+.table td.description-cell {
+    max-width: 250px; /* Sesuaikan jika perlu */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Styling Umum untuk Card Title (Gunakan dengan hati-hati atau buat lebih spesifik) */
+/* Misalnya: .card-primary .card-title atau .card-outline .card-title */
+/* Untuk saat ini, saya akan membuatnya lebih umum sebagai contoh */
+.card-title {
+    font-size: 1.1rem;
+    font-weight: 500; /* Sedikit lebih tebal */
+}
+
+/* Styling untuk Badge Hasil di Tabel Aturan Fuzzy */
+#aturanFuzzyTable .badge.bg-lightblue { /* Badge untuk kondisi */
+    font-size: 0.75rem;
+}
+#aturanFuzzyTable .badge.badge-success,
+#aturanFuzzyTable .badge.badge-danger { /* Badge untuk hasil Layak/Tidak Layak */
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+
+/* Styling Khusus untuk Form Lokasi (form_lokasi.blade.php) */
+.form-section-card {
+    border: 1px solid #e9ecef;
+    border-radius: .35rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 0 1px rgba(0,0,0,.125),0 1px 3px rgba(0,0,0,.2);
+}
+
+.form-section-card .card-header {
+    background-color: #f8f9fa; /* Warna latar header section */
+    border-bottom: 1px solid #e9ecef;
+    padding: .75rem 1.25rem;
+    font-weight: 500; /* Berat font untuk judul section */
+}
+
+.form-section-card .card-body {
+    padding: 1.25rem; /* Padding di dalam body section */
+}
+
+/* Styling untuk field readonly di form lokasi */
+#deskripsi_lokasi_display,
+#latitude,
+#longitude {
+    background-color: #e9ecef; /* Warna latar untuk field readonly agar terlihat berbeda */
+    cursor: default; /* Kursor default menunjukkan tidak bisa diedit */
+}
+
+/* Styling untuk label grup parameter di form lokasi */
+.parameter-group label {
+    font-weight: 500; /* Membuat label parameter sedikit lebih tebal */
+}
+
+/* Styling untuk alert di form agar lebih rapi */
+.alert ul {
+    padding-left: 20px; /* Indentasi untuk daftar error */
+}

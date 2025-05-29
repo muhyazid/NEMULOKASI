@@ -15,9 +15,6 @@
     <div class="card">
          <div class="card-header d-flex justify-content-between align-items-center">
             <h3 class="card-title">Step 3: Defuzzifikasi - {{ $lokasi->nama }}</h3>
-            <a href="{{ route('lokasi.hasil', $lokasi->id) }}" class="btn btn-success btn-sm">
-                Lihat Hasil Akhir <i class="fa fa-check"></i>
-            </a>
         </div>
         <div class="card-body">
             <div class="alert alert-info">

@@ -12,5 +12,6 @@ class TempatBisnis extends Model
         'nama_tempat',
         'latitude',
         'longitude',
+        'deskripsi_lokasi',
     ];
 }

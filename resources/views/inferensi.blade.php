@@ -15,9 +15,6 @@
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h3 class="card-title">Step 2: Inferensi - {{ $lokasi->nama }}</h3>
-             <a href="{{ route('lokasi.nilai-z', $lokasi->id) }}" class="btn btn-primary btn-sm">
-                Lanjut ke Step 3: Nilai Z <i class="fa fa-arrow-right"></i>
-            </a>
         </div>
         <div class="card-body">
             <div class="alert alert-info">

@@ -28,5 +28,6 @@
 <script src="{{ asset('LTE/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js') }}"></script>
 <!-- AdminLTE App -->
 <script src="{{ asset('LTE/dist/js/adminlte.js') }}"></script>
+<script src="{{ asset('js/custom-datatables.js') }}"></script>
 
 @yield('script')

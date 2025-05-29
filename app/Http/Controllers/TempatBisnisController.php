@@ -4,16 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Models\TempatBisnis;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage; 
-use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rule; // Pastikan Rule di-import jika belum
 
 class TempatBisnisController extends Controller
 {
     protected $paginationCount = 10;
- 
+
     public function index()
     {
-        $tempatBisnisList = TempatBisnis::orderBy('nama_tempat')->paginate($this->paginationCount);
+        $tempatBisnisList = TempatBisnis::orderBy('nama_tempat')->get(); // Ganti menjadi get()
         return view('tempat_bisnis.index', compact('tempatBisnisList'));
     }
 
@@ -28,16 +27,18 @@ class TempatBisnisController extends Controller
             'nama_tempat' => 'required|string|max:255|unique:tempat_bisnis,nama_tempat',
             'latitude' => 'nullable|numeric|between:-90,90',
             'longitude' => 'nullable|numeric|between:-180,180',
+            'deskripsi_lokasi' => 'nullable|string', // Tambahkan validasi untuk deskripsi
         ]);
         
-        TempatBisnis::create($validated); // $validated sudah berisi field yang benar
+        TempatBisnis::create($validated);
         return redirect()
             ->route('tempat-bisnis.index')
             ->with('success', __('Data Tempat Bisnis berhasil ditambahkan.'));
     }
 
-    public function show(TempatBisnis $tempatBisni) // Nama parameter disesuaikan
+    public function show(TempatBisnis $tempatBisni)
     {
+        // Untuk menampilkan deskripsi di halaman show, pastikan view 'tempat_bisnis.show' juga diupdate
         return view('tempat_bisnis.show', ['tempat_bisnis' => $tempatBisni]);
     }
 
@@ -57,8 +58,9 @@ class TempatBisnisController extends Controller
             ],
             'latitude' => 'nullable|numeric|between:-90,90',
             'longitude' => 'nullable|numeric|between:-180,180',
+            'deskripsi_lokasi' => 'nullable|string', // Tambahkan validasi untuk deskripsi
         ]);
-       
+        
         $tempatBisni->update($validated);
         return redirect()
             ->route('tempat-bisnis.index')

@@ -10,7 +10,7 @@
 @section('content')
 <div class="card card-primary">
     <div class="card-header"><h3 class="card-title">Form Tambah Tempat Bisnis</h3></div>
-    <form action="{{ route('tempat-bisnis.store') }}" method="POST"> {{-- enctype dihapus --}}
+    <form action="{{ route('tempat-bisnis.store') }}" method="POST">
         @csrf
         <div class="card-body">
             @include('layouts.partials.alerts')
@@ -19,6 +19,14 @@
                 <input type="text" name="nama_tempat" id="nama_tempat" class="form-control @error('nama_tempat') is-invalid @enderror" value="{{ old('nama_tempat') }}" required>
                 @error('nama_tempat') <div class="invalid-feedback">{{ $message }}</div> @enderror
             </div>
+
+            {{-- Tambahkan Field Deskripsi Lokasi --}}
+            <div class="form-group">
+                <label for="deskripsi_lokasi">Deskripsi Lokasi</label>
+                <textarea name="deskripsi_lokasi" id="deskripsi_lokasi" class="form-control @error('deskripsi_lokasi') is-invalid @enderror" rows="3">{{ old('deskripsi_lokasi') }}</textarea>
+                @error('deskripsi_lokasi') <div class="invalid-feedback">{{ $message }}</div> @enderror
+            </div>
+
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">

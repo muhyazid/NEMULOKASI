@@ -39,6 +39,7 @@ class LokasiController extends Controller
                 'nama_tempat' => $tempat->nama_tempat,
                 'latitude' => $tempat->latitude,
                 'longitude' => $tempat->longitude,
+                'deskripsi_lokasi' => $tempat->deskripsi_lokasi,
             ]);
         }
         return response()->json(['error' => 'Tempat bisnis tidak ditemukan'], 404);

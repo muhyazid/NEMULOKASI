@@ -14,9 +14,6 @@
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h3 class="card-title">Step 1: Fuzzifikasi - {{ $lokasi->nama }}</h3>
-            <a href="{{ route('lokasi.inferensi', $lokasi->id) }}" class="btn btn-primary btn-sm">
-                Lanjut ke Step 2: Inferensi <i class="fa fa-arrow-right"></i>
-            </a>
         </div>
 
         <div class="card-body">

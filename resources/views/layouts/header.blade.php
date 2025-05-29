@@ -25,6 +25,7 @@
     <link rel="stylesheet" href="{{ asset('LTE/plugins/daterangepicker/daterangepicker.css') }}">
     <!-- summernote -->
     <link rel="stylesheet" href="{{ asset('LTE/plugins/summernote/summernote-bs4.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/custom-styles.css') }}">
 
     <style>
         .nav-item.menu-open>.nav-link i.right.fas.fa-angle-left {

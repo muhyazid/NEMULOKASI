@@ -6,10 +6,6 @@
     <li class="breadcrumb-item active">Data Tempat Bisnis</li>
 @endsection
 
-{{-- @section('css') Hapus jika hanya berisi style untuk thumbnail --}}
-{{-- <style> .img-thumbnail-list { ... } </style> --}}
-{{-- @endsection --}}
-
 @section('content')
 <div class="card card-outline card-primary">
     <div class="card-header">
@@ -20,38 +16,42 @@
             </a>
         </div>
     </div>
-    <div class="card-body p-0">
+    <div class="card-body">
         @include('layouts.partials.alerts')
         <div class="table-responsive">
-            <table class="table table-hover table-striped">
+            <table id="tempatBisnisTable" class="table table-bordered table-striped table-hover" style="width:100%">
                 <thead class="bg-lightblue">
                     <tr>
-                        <th style="width: 50px;" class="text-center">#</th>
-                        <th>Nama Tempat</th>
-                        <th class="text-center">Latitude</th>
-                        <th class="text-center">Longitude</th>
-                        {{-- <th class="text-center" style="width: 120px;">Gambar</th> --}} {{-- Kolom Gambar Dihapus --}}
-                        <th style="width: 150px;" class="text-center">Aksi</th>
+                        <th style="width: 5%;" class="text-center">#</th>
+                        <th style="width: 20%;">Nama Tempat</th>
+                        <th style="width: 35%;">Deskripsi</th>
+                        <th class="text-center" style="width: 10%;">Latitude</th>
+                        <th class="text-center" style="width: 10%;">Longitude</th>
+                        <th style="width: 15%;" class="text-center no-sort">Aksi</th> {{-- Tambahkan kelas no-sort --}}
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($tempatBisnisList as $index => $tempat)
+                    @forelse($tempatBisnisList as $tempat)
                     <tr>
-                        <td class="text-center align-middle">{{ $tempatBisnisList->firstItem() + $index }}</td>
-                        <td class="align-middle">
-                            <a href="{{ route('tempat-bisnis.show', $tempat->id) }}">{{ $tempat->nama_tempat }}</a>
+                        <td class="text-center">{{ $loop->iteration }}</td>
+                        <td>
+                            <a href="{{ route('tempat-bisnis.show', $tempat->id) }}" title="{{ $tempat->nama_tempat }}">
+                                {{ Str::limit($tempat->nama_tempat, 35) }}
+                            </a>
                         </td>
-                        <td class="text-center align-middle">{{ $tempat->latitude ?? '-' }}</td>
-                        <td class="text-center align-middle">{{ $tempat->longitude ?? '-' }}</td>
-                        {{-- Kolom Gambar Dihapus --}}
-                        <td class="text-center align-middle">
+                        <td class="description-cell" title="{{ $tempat->deskripsi_lokasi }}">
+                            {{ $tempat->deskripsi_lokasi ?? '-' }}
+                        </td>
+                        <td class="text-center">{{ $tempat->latitude ?? '-' }}</td>
+                        <td class="text-center">{{ $tempat->longitude ?? '-' }}</td>
+                        <td class="text-center action-buttons">
                             <a href="{{ route('tempat-bisnis.show', $tempat->id) }}" class="btn btn-info btn-xs" title="Lihat">
                                 <i class="fas fa-eye"></i>
                             </a>
                             <a href="{{ route('tempat-bisnis.edit', $tempat->id) }}" class="btn btn-warning btn-xs" title="Edit">
                                 <i class="fas fa-edit"></i>
                             </a>
-                            <form action="{{ route('tempat-bisnis.destroy', $tempat->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin hapus data {{ $tempat->nama_tempat }}?');">
+                            <form action="{{ route('tempat-bisnis.destroy', $tempat->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin hapus data \'{{ $tempat->nama_tempat }}\'?');">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-danger btn-xs" title="Hapus">
@@ -62,7 +62,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="text-center py-4"> {{-- Colspan disesuaikan --}}
+                        <td colspan="6" class="text-center py-4">
                             <p class="text-muted">Belum ada data tempat bisnis.</p>
                             <a href="{{ route('tempat-bisnis.create') }}" class="btn btn-success btn-sm">
                                 <i class="fas fa-plus"></i> Tambah Data Pertama
@@ -74,10 +74,16 @@
             </table>
         </div>
     </div>
-    @if($tempatBisnisList->hasPages())
-    <div class="card-footer clearfix">
-        {{ $tempatBisnisList->links() }}
-    </div>
-    @endif
 </div>
+@endsection
+
+@section('scripts')
+    {{-- Library DataTables (CDN) --}}
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap4.min.js"></script>
+
+    {{-- Link ke file JavaScript kustom Anda --}}
+    <script src="{{ asset('js/custom-datatables.js') }}"></script>
 @endsection

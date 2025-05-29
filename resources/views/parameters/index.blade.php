@@ -5,65 +5,65 @@
 @endsection
 
 @section('breadcrumb')
-    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Home</a></li> {{-- Diarahkan ke dashboard --}}
+    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Home</a></li>
     <li class="breadcrumb-item active">Kelola Parameter</li>
 @endsection
 
 @section('content')
-<div class="card card-outline card-primary"> {{-- Tambahkan card-outline --}}
+<div class="card card-outline card-primary">
     <div class="card-header">
         <h3 class="card-title">Daftar Parameter dan Konfigurasi Himpunan Fuzzy</h3>
-        <div class="card-tools"> {{-- Pindahkan tombol ke card-tools untuk alignment kanan --}}
+        <div class="card-tools">
             <a href="{{ route('parameters.create') }}" class="btn btn-primary btn-sm">
                 <i class="fas fa-plus"></i> Tambah Parameter Baru
             </a>
         </div>
     </div>
-    <div class="card-body p-0"> {{-- Hapus padding default agar tabel lebih rapat ke card --}}
+    <div class="card-body">
 
-        @include('layouts.partials.alerts') {{-- Pindahkan alert ke luar tabel jika lebih umum --}}
+        @include('layouts.partials.alerts')
 
         <div class="table-responsive">
-            <table class="table table-hover table-striped"> {{-- Tambahkan table-hover --}}
+            <table id="parametersTable" class="table table-bordered table-striped table-hover" style="width:100%">
                 <thead class="bg-lightblue">
                     <tr>
-                        <th style="width: 50px;" class="text-center">#</th>
-                        <th>Nama Parameter</th>
+                        <th style="width: 5%;" class="text-center">#</th>
+                        <th style="width: 20%;">Nama Parameter</th>
                         <th>Detail Himpunan Fuzzy</th>
-                        <th style="width: 120px;" class="text-center">Aksi</th>
+                        <th style="width: 15%;" class="text-center no-sort">Aksi</th> {{-- Tambahkan kelas no-sort --}}
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($parameters as $index => $param)
+                    @forelse($parameters as $param)
                     <tr>
-                        <td class="text-center">{{ $index + 1 }}</td>
+                        <td class="text-center">{{ $loop->iteration }}</td>
                         <td class="font-weight-bold">
                             {{ Str::ucfirst(str_replace('_', ' ', $param->nama_parameter)) }}
                         </td>
                         <td>
                             @if($param->himpunanFuzzies->isNotEmpty())
-                                <div class="list-group list-group-flush">
+                                <ul class="himpunan-fuzzy-list">
                                 @foreach($param->himpunanFuzzies as $hf)
-                                    <div class="list-group-item py-1 px-0 border-0"> {{-- Lebih rapat --}}
-                                        <span class="badge bg-purple mr-2" style="min-width: 80px; text-align:left;">{{ $hf->nama_himpunan }}</span>
-                                        <span class="text-muted small">View:</span> <strong class="mr-2">{{ $hf->nilai_linguistik_view }}</strong>
-                                        <span class="text-muted small">Crisp:</span> <strong class="mr-2">{{ $hf->nilai_crisp_input }}</strong>
-                                        <span class="text-muted small">MF:</span> <strong class="text-monospace">[{{ $hf->mf_a }}, {{ $hf->mf_b }}, {{ $hf->mf_c }}]</strong>
-                                    </div>
+                                    <li>
+                                        <span class="badge bg-purple">{{ $hf->nama_himpunan }}</span>
+                                        <span class="detail-item"><span class="detail-label">View:</span> <strong>{{ $hf->nilai_linguistik_view }}</strong></span>
+                                        <span class="detail-item"><span class="detail-label">Crisp:</span> <strong>{{ $hf->nilai_crisp_input }}</strong></span>
+                                        <span class="detail-item"><span class="detail-label">MF:</span> <strong class="text-monospace">[{{ $hf->mf_a }}, {{ $hf->mf_b }}, {{ $hf->mf_c }}]</strong></span>
+                                    </li>
                                 @endforeach
-                                </div>
+                                </ul>
                             @else
                                 <em class="text-muted">Belum ada himpunan fuzzy.</em>
                             @endif
                         </td>
-                        <td class="text-center">
-                            <a href="{{ route('parameters.edit', $param->id) }}" class="btn btn-warning btn-xs" title="Edit"> {{-- btn-xs untuk lebih kecil --}}
+                        <td class="text-center action-buttons">
+                            <a href="{{ route('parameters.edit', $param->id) }}" class="btn btn-warning btn-xs" title="Edit">
                                 <i class="fas fa-edit"></i> Edit
                             </a>
-                            <form action="{{ route('parameters.destroy', $param->id) }}" method="POST" style="display:inline-block;" onsubmit="return confirm('Apakah Anda yakin ingin menghapus parameter \'{{ $param->nama_parameter }}\' beserta semua himpunan fuzzynya?');">
+                            <form action="{{ route('parameters.destroy', $param->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus parameter \'{{ Str::ucfirst(str_replace('_', ' ', $param->nama_parameter)) }}\' beserta semua himpunan fuzzynya?');">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-xs" title="Hapus"> {{-- btn-xs --}}
+                                <button type="submit" class="btn btn-danger btn-xs" title="Hapus">
                                     <i class="fas fa-trash"></i> Hapus
                                 </button>
                             </form>
@@ -83,9 +83,15 @@
             </table>
         </div>
     </div>
-    {{-- Jika ada paginasi, tambahkan di sini --}}
-    {{-- <div class="card-footer clearfix">
-        {{ $parameters->links() }}
-    </div> --}}
 </div>
+@endsection
+
+@section('scripts')
+    {{-- Library DataTables (CDN) --}}
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap4.min.js"></script>
+
+    <script src="{{ asset('js/custom-datatables.js') }}"></script>
 @endsection
