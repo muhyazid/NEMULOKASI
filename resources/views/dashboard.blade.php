@@ -52,6 +52,8 @@
                     <p class="lead">Sistem ini membantu Anda menganalisis dan menentukan kelayakan suatu lokasi untuk bisnis menggunakan metode Fuzzy Tsukamoto.</p>
                     <h5>Bagaimana Memulai?</h5>
                     <ol>
+                        {{-- Modifikasi untuk Admin --}}
+                        @if(Auth::check() && Auth::user()->role == 'admin')
                         <li>
                             <strong>Kelola Parameter:</strong> Pastikan semua parameter penilaian (seperti Aksesibilitas, Visibilitas, dll.) beserta himpunan fuzzynya (Rendah, Sedang, Tinggi) telah diatur dengan benar. Anda bisa mengatur nilai crisp input dan batasan fungsi keanggotaan (MF a,b,c) untuk setiap himpunan fuzzy.
                             <a href="{{ route('parameters.index') }}" class="btn btn-sm btn-outline-primary ml-2">Ke Kelola Parameter <i class="fas fa-arrow-circle-right"></i></a>
@@ -60,6 +62,7 @@
                             <strong>Kelola Aturan Fuzzy:</strong> Buat atau perbarui aturan IF-THEN yang akan digunakan sistem untuk melakukan inferensi. Aturan ini adalah "otak" dari sistem.
                             <a href="{{ route('aturan-fuzzy.index') }}" class="btn btn-sm btn-outline-primary ml-2">Ke Kelola Aturan <i class="fas fa-arrow-circle-right"></i></a>
                         </li>
+                        @endif
                         <li class="mt-2">
                             <strong>Analisis Lokasi Baru:</strong> Setelah parameter dan aturan siap, Anda bisa mulai menganalisis lokasi baru dengan menginput data lokasi dan memilih nilai linguistik untuk setiap parameter.
                             <a href="{{ route('lokasi.form') }}" class="btn btn-sm btn-primary ml-2">Mulai Analisis Baru <i class="fas fa-map-marker-alt"></i></a>

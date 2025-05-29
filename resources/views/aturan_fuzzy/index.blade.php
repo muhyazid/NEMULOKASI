@@ -13,10 +13,11 @@
     {{-- CSS untuk DataTables Bootstrap 4 --}}
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap4.min.css">
-    <link rel="stylesheet" href="{{ asset('css/custom-styles.css') }}"> 
+    <link rel="stylesheet" href="{{ asset('css/custom-styles.css') }}">
 @endsection
 
 @section('content')
+{{-- HAPUS BLOK TOMBOL INI DARI SINI
 <div class="row mb-3">
     <div class="col-12 text-right">
         <a href="{{ route('aturan-fuzzy.create') }}" class="btn btn-primary">
@@ -24,6 +25,7 @@
         </a>
     </div>
 </div>
+--}}
 
 @include('layouts.partials.alerts')
 
@@ -41,6 +43,15 @@
     <div class="card card-outline card-primary">
         <div class="card-header">
             <h3 class="card-title">Daftar Aturan Fuzzy (IF-THEN)</h3>
+            {{-- ======================================================= --}}
+            {{-- PINDAHKAN TOMBOL TAMBAH BARU KE SINI --}}
+            {{-- ======================================================= --}}
+            <div class="card-tools">
+                <a href="{{ route('aturan-fuzzy.create') }}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-plus"></i> Tambah Aturan Baru
+                </a>
+            </div>
+            {{-- ======================================================= --}}
         </div>
         <div class="card-body">
             <div class="table-responsive">
@@ -52,8 +63,7 @@
                                 <th>{{ $displayParamName }}</th>
                             @endforeach
                             <th style="width: 10%;">Hasil (THEN)</th>
-                            {{-- Tambahkan kelas 'no-sort' jika ingin menargetkan dengan kelas --}}
-                            <th style="width: 12%;" class="text-center no-sort">Aksi</th> 
+                            <th style="width: 12%;" class="text-center no-sort">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -64,7 +74,7 @@
                                 @php
                                     $paramKeyForCondition = str_replace(' ', '_', strtolower($displayParamName));
                                     $namaHimpunanTersimpan = is_array($aturan->kondisi) ? ($aturan->kondisi[$paramKeyForCondition] ?? null) : null;
-                                    $tampilanLinguistikDiTabel = '-'; 
+                                    $tampilanLinguistikDiTabel = '-';
                                     if ($namaHimpunanTersimpan && isset($linguisticViewMap[$paramKeyForCondition][$namaHimpunanTersimpan])) {
                                         $tampilanLinguistikDiTabel = $linguisticViewMap[$paramKeyForCondition][$namaHimpunanTersimpan];
                                     }
@@ -84,13 +94,13 @@
                             </td>
                             <td class="text-center action-buttons">
                                 <a href="{{ route('aturan-fuzzy.edit', $aturan->id) }}" class="btn btn-warning btn-xs" title="Edit">
-                                    <i class="fas fa-edit"></i> 
+                                    <i class="fas fa-edit"></i>
                                 </a>
                                 <form action="{{ route('aturan-fuzzy.destroy', $aturan->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus aturan R{{ $loop->iteration }}\'?');">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-danger btn-xs" title="Hapus">
-                                        <i class="fas fa-trash"></i> 
+                                        <i class="fas fa-trash"></i>
                                     </button>
                                 </form>
                             </td>
